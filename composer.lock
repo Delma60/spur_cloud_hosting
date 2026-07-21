@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6bfe74e93ed3ecbb303d40a5878eb43",
+    "content-hash": "23173a8ee1b343eff3f4a471c43d4c33",
     "packages": [
         {
             "name": "brick/math",
@@ -3428,6 +3428,50 @@
                 "issues": "https://github.com/Delma60/spurs-accounts-laravel-sdk/issues"
             },
             "time": "2026-07-21T16:52:36+00:00"
+        },
+        {
+            "name": "spurs-cloud/wallet-laravel",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../products/sdks/wallet/laravel",
+                "reference": "9c7f7df1bdcd23c2b2146e0217bb4ec6ea558d22"
+            },
+            "require": {
+                "illuminate/http": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "SpursCloud\\Wallet\\SpursWalletServiceProvider"
+                    ],
+                    "aliases": {
+                        "SpursWallet": "SpursCloud\\Wallet\\Facades\\SpursWallet"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SpursCloud\\Wallet\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Spurs Wallet SDK for Laravel — read multi-asset balances, move money, and fund wallets.",
+            "keywords": [
+                "balances",
+                "laravel",
+                "multi-currency",
+                "spurs",
+                "wallet"
+            ],
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "symfony/clock",
@@ -8585,7 +8629,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "spurs-cloud/accounts-laravel": 20
+        "spurs-cloud/accounts-laravel": 20,
+        "spurs-cloud/wallet-laravel": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
