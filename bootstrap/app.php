@@ -15,6 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // The shared SSO cookie is a signed JWT from accounts (different APP_KEY),
+        // so cloud must read it raw, not try to Laravel-decrypt it.
+        $middleware->encryptCookies(except: [
+            'spurs_session',
+        ]);
+
         // Hydrate the shared Spurs SSO session before anything else in the web stack.
         $middleware->web(prepend: [
             HydrateSpursSession::class,
@@ -24,11 +30,12 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // Guests hitting a protected route go to accounts to sign in, then return.
+        // Guests hitting a protected route go to accounts, which (re)issues the
+        // shared cookie and bounces them back here — signed in.
         $middleware->redirectGuestsTo(function (Request $request) {
             $issuer = config('services.spurs.issuer');
 
-            return $issuer.'/login?return_to='.urlencode($request->fullUrl());
+            return $issuer.'/sso/continue?return_to='.urlencode($request->fullUrl());
         });
     })
     ->withExceptions(function (Exceptions $exceptions) {

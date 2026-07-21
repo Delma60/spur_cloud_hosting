@@ -1,270 +1,152 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Server, Globe, FileText, ExternalLink, Mail, ArrowRight, ShieldCheck, Receipt, LifeBuoy, CreditCard } from 'lucide-react';
+import { Server, Globe, ShieldCheck, ArrowRight, Plus, ExternalLink } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
-import { PageProps } from '@/types';
+import { type SharedData } from '@/types';
 
-export default function Dashboard({ auth }: PageProps) {
+interface Domain { id: number; name: string; status: string; expires_at: string | null }
+interface Service { id: number; label: string; plan: string; status: string }
+interface Stats { domains: number; active_domains: number; services: number }
+
+const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—');
+const badge: Record<string, string> = {
+    active: 'bg-green-500/10 text-green-600 dark:text-green-500',
+    pending: 'bg-amber-500/10 text-amber-600 dark:text-amber-500',
+    expired: 'bg-red-500/10 text-red-600 dark:text-red-500',
+    suspended: 'bg-red-500/10 text-red-600 dark:text-red-500',
+};
+
+export default function Dashboard({
+    stats = { domains: 0, active_domains: 0, services: 0 },
+    recentDomains = [],
+    recentServices = [],
+}: {
+    stats?: Stats;
+    recentDomains?: Domain[];
+    recentServices?: Service[];
+}) {
+    const { auth } = usePage<SharedData>().props;
+
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={[{ title: 'Dashboard', href: route('dashboard') }]}>
             <Head title="Client Area | Spurs Cloud" />
 
-            <div className="flex-1 space-y-8 p-8 pt-6">
-                {/* Page Header */}
-                <div className="flex items-center justify-between space-y-2">
+            <div className="flex-1 space-y-8 p-4 md:p-8 md:pt-6">
+                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight">Welcome back, {auth.user.name}</h2>
-                        <p className="text-muted-foreground">
-                            Manage your hosting services, domains, and billing from your centralized dashboard.
-                        </p>
+                        <h2 className="text-3xl font-bold tracking-tight">Welcome back, {auth?.user?.name?.split(' ')[0]}</h2>
+                        <p className="text-muted-foreground">Manage your domains, hosting and account in one place.</p>
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <Button>
-                            <Globe className="mr-2 h-4 w-4" />
-                            Register a New Domain
-                        </Button>
-                    </div>
+                    <Button asChild><Link href={route('domains.register.get')}><Globe className="mr-2 h-4 w-4" /> Register a domain</Link></Button>
                 </div>
 
-                {/* Overview Stats */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Active Hosting</CardTitle>
-                            <Server className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">1</div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                Business Plan
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Registered Domains</CardTitle>
-                            <Globe className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">2</div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                1 expiring in 30 days
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Unpaid Invoices</CardTitle>
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-red-500">₦0.00</div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                Your account is up to date
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Account Security</CardTitle>
-                            <ShieldCheck className="h-4 w-4 text-green-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">Verified</div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                Authenticated via Spurs SSO
-                            </p>
-                        </CardContent>
-                    </Card>
+                {/* Stats */}
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <Stat icon={<Globe className="h-4 w-4" />} label="Domains" value={String(stats.domains)} hint={`${stats.active_domains} active`} />
+                    <Stat icon={<Server className="h-4 w-4" />} label="Hosting plans" value={String(stats.services)} hint="Active services" />
+                    <Stat icon={<ShieldCheck className="h-4 w-4 text-green-500" />} label="Account" value="Verified" hint="Signed in via Spurs SSO" />
                 </div>
 
-                {/* Main Content Grid: Top Row */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                    {/* Active Services List */}
-                    <Card className="col-span-4">
-                        <CardHeader>
-                            <CardTitle>Your Active Services</CardTitle>
-                            <CardDescription>
-                                Manage your web hosting and access your control panels.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border p-4 gap-4">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="bg-primary/10 p-2 rounded-full shrink-0">
-                                            <Server className="h-5 w-5 text-primary" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium leading-none">Business Web Hosting</p>
-                                            <p className="text-sm text-muted-foreground mt-1">spurs.com.ng</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                                        <div className="flex items-center text-sm text-green-500 mr-2 sm:mr-4">
-                                            <span className="relative flex h-2 w-2 mr-2">
-                                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                            </span>
-                                            Active
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <Button variant="outline" size="sm">Manage</Button>
-                                            <Button size="sm">
-                                                cPanel <ExternalLink className="ml-2 h-3 w-3" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border p-4 gap-4">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="bg-muted p-2 rounded-full shrink-0">
-                                            <Globe className="h-5 w-5 text-muted-foreground" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium leading-none">Domain Registration</p>
-                                            <p className="text-sm text-muted-foreground mt-1">spurs.com.ng</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                                        <div className="flex items-center text-sm text-yellow-500 mr-2 sm:mr-4">
-                                            <span className="relative flex h-2 w-2 mr-2">
-                                              <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
-                                            </span>
-                                            Renews in 30 days
-                                        </div>
-                                        <Button variant="outline" size="sm">Manage Domain</Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Quick Links */}
-                    <Card className="col-span-3">
-                        <CardHeader>
-                            <CardTitle>Quick Actions</CardTitle>
-                            <CardDescription>
-                                Shortcuts to your essential business tools.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <Button variant="outline" className="w-full justify-between h-12" asChild>
-                                <Link href="#">
-                                    <span className="flex items-center font-normal text-foreground">
-                                        <Mail className="mr-3 h-5 w-5 text-primary" />
-                                        Login to Webmail
-                                    </span>
-                                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                                </Link>
-                            </Button>
-
-                            <Button variant="outline" className="w-full justify-between h-12" asChild>
-                                <Link href="#">
-                                    <span className="flex items-center font-normal text-foreground">
-                                        <Globe className="mr-3 h-5 w-5 text-primary" />
-                                        Manage DNS Records
-                                    </span>
-                                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                                </Link>
-                            </Button>
-
-                            <Button variant="outline" className="w-full justify-between h-12" asChild>
-                                <Link href="#">
-                                    <span className="flex items-center font-normal text-foreground">
-                                        <CreditCard className="mr-3 h-5 w-5 text-primary" />
-                                        Update Payment Method
-                                    </span>
-                                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                                </Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Main Content Grid: Bottom Row */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                    {/* Recent Invoices */}
-                    <Card className="col-span-4">
+                <div className="grid gap-4 lg:grid-cols-7">
+                    {/* Hosting */}
+                    <Card className="lg:col-span-4">
                         <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle>Recent Invoices</CardTitle>
-                                <CardDescription>Your billing history for the last 90 days.</CardDescription>
-                            </div>
-                            <Button variant="ghost" size="sm" className="text-primary">View All</Button>
+                            <div><CardTitle>Your hosting</CardTitle><CardDescription>Web hosting services.</CardDescription></div>
+                            <Button variant="ghost" size="sm" asChild className="text-primary"><Link href={route('services.shared-hosting')}>View all</Link></Button>
                         </CardHeader>
-                        <CardContent>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm text-left">
-                                    <thead className="text-xs text-muted-foreground uppercase border-b">
-                                        <tr>
-                                            <th className="px-4 py-3 font-medium">Invoice #</th>
-                                            <th className="px-4 py-3 font-medium">Date</th>
-                                            <th className="px-4 py-3 font-medium">Amount</th>
-                                            <th className="px-4 py-3 font-medium text-right">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y">
-                                        <tr className="hover:bg-muted/50 transition-colors">
-                                            <td className="px-4 py-3 font-medium text-foreground">INV-10042</td>
-                                            <td className="px-4 py-3 text-muted-foreground">July 15, 2026</td>
-                                            <td className="px-4 py-3 text-foreground">₦4,000.00</td>
-                                            <td className="px-4 py-3 text-right">
-                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-500">
-                                                    Paid
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr className="hover:bg-muted/50 transition-colors">
-                                            <td className="px-4 py-3 font-medium text-foreground">INV-09881</td>
-                                            <td className="px-4 py-3 text-muted-foreground">June 15, 2026</td>
-                                            <td className="px-4 py-3 text-foreground">₦4,000.00</td>
-                                            <td className="px-4 py-3 text-right">
-                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-500">
-                                                    Paid
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <CardContent className="space-y-3">
+                            {recentServices.length === 0 ? (
+                                <Empty label="No hosting yet" cta="Order hosting" href={route('services.order')} icon={<Server className="h-5 w-5" />} />
+                            ) : (
+                                recentServices.map((s) => (
+                                    <Link key={s.id} href={route('services.show', s.id)} className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-4 transition">
+                                        <div className="flex items-center gap-3">
+                                            <span className="bg-primary/10 grid h-9 w-9 place-items-center rounded-full"><Server className="text-primary h-4 w-4" /></span>
+                                            <div><div className="text-sm font-medium">{s.label}</div><div className="text-muted-foreground text-xs capitalize">{s.plan} plan</div></div>
+                                        </div>
+                                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${badge[s.status] ?? 'bg-muted'}`}>{s.status}</span>
+                                    </Link>
+                                ))
+                            )}
                         </CardContent>
                     </Card>
 
-                    {/* Support Tickets */}
-                    <Card className="col-span-3">
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle>Support Tickets</CardTitle>
-                                <CardDescription>Recent interactions with our team.</CardDescription>
-                            </div>
-                            <Button variant="ghost" size="sm" className="text-primary">Open Ticket</Button>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0">
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium leading-none">Need help configuring SSL</p>
-                                    <p className="text-xs text-muted-foreground">Ticket #4091 • Updated 2 days ago</p>
-                                </div>
-                                <div className="text-xs px-2 py-1 rounded-md bg-muted text-muted-foreground">
-                                    Closed
-                                </div>
-                            </div>
-                            <div className="flex items-start justify-between border-b pb-4 last:border-0 last:pb-0">
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium leading-none">Domain transfer inquiry</p>
-                                    <p className="text-xs text-muted-foreground">Ticket #3812 • Updated 1 month ago</p>
-                                </div>
-                                <div className="text-xs px-2 py-1 rounded-md bg-muted text-muted-foreground">
-                                    Closed
-                                </div>
-                            </div>
+                    {/* Quick actions */}
+                    <Card className="lg:col-span-3">
+                        <CardHeader><CardTitle>Quick actions</CardTitle><CardDescription>Get things done fast.</CardDescription></CardHeader>
+                        <CardContent className="space-y-3">
+                            <Action href={route('domains.register.get')} icon={<Plus className="h-5 w-5" />} label="Register a new domain" />
+                            <Action href={route('services.order')} icon={<Server className="h-5 w-5" />} label="Order web hosting" />
+                            <Action href="http://127.0.0.1:8000/me" icon={<ExternalLink className="h-5 w-5" />} label="Manage Spurs Account" external />
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Domains */}
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div><CardTitle>Recent domains</CardTitle><CardDescription>Your latest registrations.</CardDescription></div>
+                        <Button variant="ghost" size="sm" asChild className="text-primary"><Link href={route('domains.index')}>View all</Link></Button>
+                    </CardHeader>
+                    <CardContent>
+                        {recentDomains.length === 0 ? (
+                            <Empty label="No domains yet" cta="Find a domain" href={route('domains.register.get')} icon={<Globe className="h-5 w-5" />} />
+                        ) : (
+                            <div className="divide-y">
+                                {recentDomains.map((d) => (
+                                    <Link key={d.id} href={route('domains.show', d.id)} className="hover:bg-muted/30 -mx-2 flex items-center justify-between rounded px-2 py-3 transition">
+                                        <div className="flex items-center gap-3">
+                                            <Globe className="text-muted-foreground h-4 w-4" />
+                                            <span className="text-sm font-medium">{d.name}</span>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-muted-foreground hidden text-xs sm:inline">Expires {fmt(d.expires_at)}</span>
+                                            <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${badge[d.status] ?? 'bg-muted'}`}>{d.status}</span>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </AppLayout>
+    );
+}
+
+function Stat({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: string; hint: string }) {
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{label}</CardTitle>
+                <span className="text-muted-foreground">{icon}</span>
+            </CardHeader>
+            <CardContent><div className="text-2xl font-bold">{value}</div><p className="text-muted-foreground mt-1 text-xs">{hint}</p></CardContent>
+        </Card>
+    );
+}
+
+function Action({ href, icon, label, external }: { href: string; icon: React.ReactNode; label: string; external?: boolean }) {
+    const inner = (
+        <span className="flex w-full items-center justify-between">
+            <span className="text-foreground flex items-center font-normal"><span className="text-primary mr-3">{icon}</span>{label}</span>
+            <ArrowRight className="text-muted-foreground h-4 w-4" />
+        </span>
+    );
+    return (
+        <Button variant="outline" className="h-12 w-full justify-between" asChild>
+            {external ? <a href={href}>{inner}</a> : <Link href={href}>{inner}</Link>}
+        </Button>
+    );
+}
+
+function Empty({ label, cta, href, icon }: { label: string; cta: string; href: string; icon: React.ReactNode }) {
+    return (
+        <div className="flex flex-col items-center py-10 text-center">
+            <span className="bg-muted text-muted-foreground grid h-11 w-11 place-items-center rounded-full">{icon}</span>
+            <p className="mt-3 text-sm font-medium">{label}</p>
+            <Button asChild size="sm" className="mt-3"><Link href={href}>{cta}</Link></Button>
+        </div>
     );
 }

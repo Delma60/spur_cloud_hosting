@@ -1,245 +1,99 @@
-import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import {
-    Globe,
-    ArrowLeft,
-    Lock,
-    ShieldCheck,
-    RefreshCw,
-    Settings,
-    Key,
-    Server,
-    ExternalLink
-} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Globe, ArrowLeft, Server, Calendar, RefreshCw, ShieldCheck } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 
-// Mock data for the specific domain being viewed
-const domain = {
-    id: 1,
-    name: 'example-business.com.ng',
-    status: 'Active',
-    registrationDate: 'July 15, 2026',
-    expirationDate: 'July 15, 2027',
-    price: '₦1,200/yr',
-    autoRenew: true,
-    registrarLock: true,
-    idProtection: true,
-    nameservers: ['ns1.spurs.com.ng', 'ns2.spurs.com.ng'],
+interface Domain {
+    id: number;
+    name: string;
+    status: string;
+    tld: string;
+    price: number;
+    years: number;
+    auto_renew: boolean;
+    expires_at: string | null;
+    created_at: string;
+    nameservers: string[] | null;
+}
+
+const naira = (kobo: number) => '₦' + (kobo / 100).toLocaleString('en-NG');
+const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—');
+
+const badge: Record<string, string> = {
+    active: 'bg-green-500/10 text-green-600 dark:text-green-500',
+    pending: 'bg-amber-500/10 text-amber-600 dark:text-amber-500',
+    expired: 'bg-red-500/10 text-red-600 dark:text-red-500',
 };
 
-export default function ManageDomain() {
-    // State for interactive toggles
-    const [autoRenew, setAutoRenew] = useState(domain.autoRenew);
-    const [registrarLock, setRegistrarLock] = useState(domain.registrarLock);
-    const [idProtection, setIdProtection] = useState(domain.idProtection);
-
+export default function ShowDomain({ domain }: { domain: Domain }) {
     return (
-        <AppLayout>
-            <Head title={`Manage ${domain.name} | Spurs Cloud`} />
+        <AppLayout breadcrumbs={[{ title: 'Domains', href: route('domains.index') }, { title: domain.name, href: route('domains.show', domain.id) }]}>
+            <Head title={`${domain.name} | Spurs Cloud`} />
 
-            <div className="flex-1 p-4 md:p-8 md:pt-6 max-w-7xl mx-auto space-y-6 md:space-y-8">
+            <div className="flex-1 space-y-6 p-4 md:p-8 md:pt-6">
+                <Button variant="ghost" size="sm" asChild className="text-muted-foreground -ml-2">
+                    <Link href={route('domains.index')}><ArrowLeft className="mr-2 h-4 w-4" /> All domains</Link>
+                </Button>
 
-                {/* Back Navigation & Header */}
-                <div>
-                    <Button variant="ghost" size="sm" asChild className="-ml-3 mb-4 text-muted-foreground">
-                        <Link href="/domains">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Domains
-                        </Link>
-                    </Button>
-
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-primary/10 p-3 rounded-xl shrink-0">
-                                <Globe className="h-6 w-6 text-primary" />
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-3 mb-1">
-                                    <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight break-all">
-                                        {domain.name}
-                                    </h2>
-                                    <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        domain.status === 'Active'
-                                            ? 'bg-green-500/10 text-green-500'
-                                            : 'bg-red-500/10 text-red-500'
-                                    }`}>
-                                        {domain.status === 'Active' && <span className="h-1.5 w-1.5 rounded-full bg-green-500 mr-2"></span>}
-                                        {domain.status}
-                                    </span>
-                                </div>
-                                <p className="text-muted-foreground text-sm">
-                                    Domain Registration Overview
-                                </p>
-                            </div>
+                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                    <div className="flex items-center gap-3">
+                        <span className="bg-primary/10 grid h-11 w-11 place-items-center rounded-xl"><Globe className="text-primary h-5 w-5" /></span>
+                        <div>
+                            <h2 className="text-2xl font-bold tracking-tight">{domain.name}</h2>
+                            <span className={`mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${badge[domain.status] ?? 'bg-muted'}`}>{domain.status}</span>
                         </div>
-
-                        <Button className="w-full sm:w-auto">
-                            <RefreshCw className="mr-2 h-4 w-4" /> Renew Domain
-                        </Button>
                     </div>
+                    <Button asChild variant="outline"><Link href={route('domains.nameservers', domain.id)}><Server className="mr-2 h-4 w-4" /> Nameservers</Link></Button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                <div className="grid gap-4 md:grid-cols-3">
+                    <Info icon={<Calendar className="h-4 w-4" />} label="Registered" value={fmt(domain.created_at)} />
+                    <Info icon={<RefreshCw className="h-4 w-4" />} label="Expires" value={fmt(domain.expires_at)} />
+                    <Info icon={<ShieldCheck className="h-4 w-4" />} label="Auto renew" value={domain.auto_renew ? 'Enabled' : 'Disabled'} />
+                </div>
 
-                    {/* LEFT COLUMN: Main Configurations */}
-                    <div className="lg:col-span-2 space-y-6 md:space-y-8">
+                <div className="grid gap-4 md:grid-cols-2">
+                    <Card>
+                        <CardHeader><CardTitle className="text-base">Registration</CardTitle><CardDescription>Billing for this domain.</CardDescription></CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                            <Row label="Term" value={`${domain.years} year(s)`} />
+                            <Row label="Price" value={`${naira(domain.price)} / term`} />
+                            <Row label="Extension" value={`.${domain.tld}`} />
+                        </CardContent>
+                    </Card>
 
-                        {/* Domain Overview Stats */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <Card className="bg-muted/30 border-none shadow-none">
-                                <CardContent className="p-4 sm:p-6">
-                                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Registration Date</p>
-                                    <p className="font-medium text-foreground">{domain.registrationDate}</p>
-                                </CardContent>
-                            </Card>
-                            <Card className="bg-muted/30 border-none shadow-none">
-                                <CardContent className="p-4 sm:p-6">
-                                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Expiration Date</p>
-                                    <p className="font-medium text-foreground">{domain.expirationDate}</p>
-                                </CardContent>
-                            </Card>
-                            <Card className="bg-muted/30 border-none shadow-none col-span-2 md:col-span-1">
-                                <CardContent className="p-4 sm:p-6">
-                                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Renewal Price</p>
-                                    <p className="font-medium text-foreground">{domain.price}</p>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* Security & Settings Toggles */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-xl">Security & Settings</CardTitle>
-                                <CardDescription>Manage the administrative protections for your domain.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-
-                                {/* Auto Renew Toggle */}
-                                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                    <div className="space-y-0.5">
-                                        <div className="flex items-center text-base font-semibold text-foreground">
-                                            <RefreshCw className="mr-2 h-4 w-4 text-muted-foreground" />
-                                            Auto-Renewal
-                                        </div>
-                                        <p className="text-sm text-muted-foreground max-w-[85%]">
-                                            Automatically invoice and renew this domain before it expires.
-                                        </p>
-                                    </div>
-                                    <Switch
-                                        checked={autoRenew}
-                                        onCheckedChange={setAutoRenew}
-                                    />
-                                </div>
-
-                                {/* Registrar Lock Toggle */}
-                                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                    <div className="space-y-0.5">
-                                        <div className="flex items-center text-base font-semibold text-foreground">
-                                            <Lock className="mr-2 h-4 w-4 text-muted-foreground" />
-                                            Registrar Lock
-                                        </div>
-                                        <p className="text-sm text-muted-foreground max-w-[85%]">
-                                            Prevent unauthorized transfers of your domain to another registrar.
-                                        </p>
-                                    </div>
-                                    <Switch
-                                        checked={registrarLock}
-                                        onCheckedChange={setRegistrarLock}
-                                    />
-                                </div>
-
-                                {/* ID Protection Toggle */}
-                                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                    <div className="space-y-0.5">
-                                        <div className="flex items-center text-base font-semibold text-foreground">
-                                            <ShieldCheck className="mr-2 h-4 w-4 text-muted-foreground" />
-                                            ID Protection (WHOIS Privacy)
-                                        </div>
-                                        <p className="text-sm text-muted-foreground max-w-[85%]">
-                                            Hide your personal contact information from the public WHOIS database.
-                                        </p>
-                                    </div>
-                                    <Switch
-                                        checked={idProtection}
-                                        onCheckedChange={setIdProtection}
-                                    />
-                                </div>
-
-                            </CardContent>
-                        </Card>
-
-                    </div>
-
-                    {/* RIGHT COLUMN: Nameservers & Advanced */}
-                    <div className="space-y-6 md:space-y-8">
-
-                        {/* Nameservers Card */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-xl flex items-center gap-2">
-                                    <Server className="h-5 w-5 text-muted-foreground" /> Nameservers
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                {domain.nameservers.map((ns, index) => (
-                                    <div key={index} className="bg-muted/50 p-3 rounded-md border font-mono text-sm text-center">
-                                        {ns}
-                                    </div>
-                                ))}
-                            </CardContent>
-                            <CardFooter>
-                                <Button variant="outline" className="w-full" asChild>
-                                    <Link href={`/domains/${domain.id}/nameservers`}>
-                                        <Settings className="mr-2 h-4 w-4" /> Manage Nameservers
-                                    </Link>
-                                </Button>
-                            </CardFooter>
-                        </Card>
-
-                        {/* DNS Management Card */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-xl flex items-center gap-2">
-                                    <Globe className="h-5 w-5 text-muted-foreground" /> DNS Management
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-muted-foreground">
-                                    Manage your domain's host records (A, CNAME, TXT, MX) directly from our custom control panel.
-                                </p>
-                            </CardContent>
-                            <CardFooter>
-                                <Button variant="secondary" className="w-full" asChild>
-                                    <Link href={`/domains/${domain.id}/dns`}>
-                                        DNS Zone Editor <ExternalLink className="ml-2 h-4 w-4" />
-                                    </Link>
-                                </Button>
-                            </CardFooter>
-                        </Card>
-
-                        {/* Advanced / Transfer */}
-                        <Card className="border-red-500/20">
-                            <CardHeader>
-                                <CardTitle className="text-xl flex items-center gap-2 text-foreground">
-                                    <Key className="h-5 w-5 text-muted-foreground" /> Transfer Domain
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    To transfer this domain to another registrar, you will need to unlock the domain and request an Authorization (EPP) Code.
-                                </p>
-                                <Button variant="destructive" variant="outline" className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-900/50 dark:hover:bg-red-950">
-                                    Get EPP Code
-                                </Button>
-                            </CardContent>
-                        </Card>
-
-                    </div>
+                    <Card>
+                        <CardHeader><CardTitle className="text-base">Nameservers</CardTitle><CardDescription>Where this domain points.</CardDescription></CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                            {(domain.nameservers ?? []).length > 0 ? (
+                                (domain.nameservers ?? []).map((ns) => <div key={ns} className="text-muted-foreground font-mono">{ns}</div>)
+                            ) : (
+                                <p className="text-muted-foreground">Using default Spurs nameservers.</p>
+                            )}
+                            <Button asChild variant="link" className="px-0"><Link href={route('domains.nameservers', domain.id)}>Manage nameservers</Link></Button>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </AppLayout>
     );
+}
+
+function Info({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+    return (
+        <Card>
+            <CardContent className="flex items-center gap-3 p-5">
+                <span className="bg-muted text-muted-foreground grid h-9 w-9 place-items-center rounded-lg">{icon}</span>
+                <div>
+                    <div className="text-muted-foreground text-xs">{label}</div>
+                    <div className="font-semibold">{value}</div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+    return <div className="flex justify-between"><span className="text-muted-foreground">{label}</span><span className="font-medium">{value}</span></div>;
 }

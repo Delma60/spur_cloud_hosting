@@ -18,7 +18,7 @@ const mainNavItems = [
         icon: Server,
         items: [
             { title: 'Shared Hosting', url: route("services.shared-hosting")},
-            { title: 'Cloud VPS', url: '#' },
+            { title: 'Cloud VPS', url: route('services.vps') },
             { title: 'Order New Service', url: route("services.order") },
         ],
     },
@@ -28,9 +28,9 @@ const mainNavItems = [
         icon: Globe,
         items: [
             { title: 'My Domains', url: route("domains.index") },
-            { title: 'Register a New Domain', url: route("domains.register.get  ") },
-            { title: 'Transfer Domains', url: '#' },
-            { title: 'DNS Management', url: '#' },
+            { title: 'Register a New Domain', url: route("domains.register.get") },
+            { title: 'Transfer Domains', url: route('domains.transfer') },
+            { title: 'DNS Management', url: route('dns.index') },
         ],
     },
     {
@@ -38,8 +38,8 @@ const mainNavItems = [
         url: '#',
         icon: Mail,
         items: [
-            { title: 'Manage Inboxes', url: '#' },
-            { title: 'Webmail Login', url: '#' },
+            { title: 'Manage Inboxes', url: route('email.inboxes') },
+            { title: 'Webmail Login', url: route('email.webmail') },
         ],
     },
     {
@@ -47,9 +47,9 @@ const mainNavItems = [
         url: '#',
         icon: CreditCard,
         items: [
-            { title: 'My Invoices', url: '#' },
-            { title: 'Payment Methods', url: '#' },
-            { title: 'Add Funds', url: '#' },
+            { title: 'My Invoices', url: route('billing.invoices') },
+            { title: 'Payment Methods', url: route('billing.payment-methods') },
+            { title: 'Add Funds', url: route('billing.add-funds') },
         ],
     },
     {
@@ -57,9 +57,9 @@ const mainNavItems = [
         url: '#',
         icon: LifeBuoy,
         items: [
-            { title: 'My Tickets', url: '#' },
-            { title: 'Open New Ticket', url: '#' },
-            { title: 'Knowledge Base', url: '#' },
+            { title: 'My Tickets', url: route('support.tickets') },
+            { title: 'Open New Ticket', url: route('support.open') },
+            { title: 'Knowledge Base', url: route('support.kb') },
         ],
     },
 ];

@@ -18,6 +18,9 @@ class HydrateSpursSession
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Only ever sign the user IN from a valid shared cookie — never force a
+        // logout here (that would eject already-authenticated users during the
+        // transition, or whenever the cookie host doesn't match).
         if (! Auth::check()) {
             $claims = SpursSession::verify($request->cookie(SpursSession::cookieName()));
 
@@ -32,9 +35,6 @@ class HydrateSpursSession
                 );
                 Auth::login($user);
             }
-        } elseif (! SpursSession::verify($request->cookie(SpursSession::cookieName()))) {
-            // Shared session ended at accounts → end the local session too.
-            Auth::guard('web')->logout();
         }
 
         return $next($request);
