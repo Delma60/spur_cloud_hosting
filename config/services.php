@@ -35,12 +35,12 @@ return [
         ],
     ],
 
-    // Spurs SSO (OIDC client) — accounts is the identity provider.
+    // Spurs SSO — accounts is the identity provider. First-party apps read the
+    // shared session cookie (secret below) rather than taking an access token.
     'spurs' => [
-        'issuer' => rtrim(env('SPURS_ISSUER', 'http://127.0.0.1:8000'), '/'),
-        'client_id' => env('SPURS_CLIENT_ID'),
-        'client_secret' => env('SPURS_CLIENT_SECRET'),
-        'redirect' => env('SPURS_REDIRECT_URI'),
+        'issuer' => rtrim(env('SPURS_ISSUER', 'http://localhost:8000'), '/'),
+        'secret' => env('SPURS_SESSION_SECRET'),
+        'cookie' => env('SPURS_SESSION_COOKIE', 'spurs_session'),
     ],
 
     // Spurs money layer (private service-to-service APIs).

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,6 +19,22 @@ class DomainController extends Controller
 
     public function index()
     {
-        return Inertia::render('dashboard');
+        return Inertia::render('domain/index');
+    }
+
+    public function show($id)
+    {
+        return Inertia::render('domain/show');
+    }
+
+    public function register()
+    {
+        error_log("register called");
+        return Inertia::render('domain/register');
+    }
+
+    public function nameservers()
+    {
+        return Inertia::render('domain/nameservers');
     }
 }

@@ -27,8 +27,8 @@ const mainNavItems = [
         url: '#',
         icon: Globe,
         items: [
-            { title: 'My Domains', url: route("domain.index") },
-            { title: 'Register a New Domain', url: '#' },
+            { title: 'My Domains', url: route("domains.index") },
+            { title: 'Register a New Domain', url: route("domains.register.get  ") },
             { title: 'Transfer Domains', url: '#' },
             { title: 'DNS Management', url: '#' },
         ],
