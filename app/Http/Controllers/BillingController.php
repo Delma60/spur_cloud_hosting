@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\WalletClient;
+use SpursCloud\Wallet\Facades\SpursWallet;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -46,7 +46,7 @@ class BillingController extends Controller
     public function addFunds(Request $request)
     {
         return Inertia::render('billing/add-funds', [
-            'balances' => WalletClient::balances($request->user()->spurs_sub ?? ''),
+            'balances' => SpursWallet::balances($request->user()->spurs_sub ?? ''),
         ]);
     }
 
@@ -55,7 +55,7 @@ class BillingController extends Controller
         $data = $request->validate(['amount' => ['required', 'numeric', 'min:100']]);
         $amount = (int) round($data['amount'] * 100); // kobo
 
-        $result = WalletClient::startTopup(
+        $result = SpursWallet::startTopup(
             $request->user()->spurs_sub,
             $amount,
             route('billing.topup.return'),
@@ -67,7 +67,7 @@ class BillingController extends Controller
     public function topupReturn(Request $request)
     {
         if ($ref = $request->query('ref')) {
-            WalletClient::verifyTopup($ref);
+            SpursWallet::verifyTopup($ref);
         }
 
         return redirect()->route('billing.add-funds')->with('status', 'Wallet updated.');
