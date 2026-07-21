@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
-use App\Http\Middleware\HydrateSpursSession;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use SpursCloud\Accounts\Facades\Spurs;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,16 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // The shared SSO cookie is a signed JWT from accounts (different APP_KEY),
-        // so cloud must read it raw, not try to Laravel-decrypt it.
-        $middleware->encryptCookies(except: [
-            'spurs_session',
-        ]);
-
-        // Hydrate the shared Spurs SSO session before anything else in the web stack.
-        $middleware->web(prepend: [
-            HydrateSpursSession::class,
-        ]);
+        // Shared Spurs SSO is handled by spurs-cloud/accounts-laravel: its service
+        // provider prepends the session-hydrating middleware to the web group and
+        // exempts the shared cookie from this app's encryption.
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
@@ -32,11 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Guests hitting a protected route go to accounts, which (re)issues the
         // shared cookie and bounces them back here — signed in.
-        $middleware->redirectGuestsTo(function (Request $request) {
-            $issuer = config('services.spurs.issuer');
-
-            return $issuer.'/sso/continue?return_to='.urlencode($request->fullUrl());
-        });
+        $middleware->redirectGuestsTo(fn (Request $request) => Spurs::loginUrl($request->fullUrl()));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

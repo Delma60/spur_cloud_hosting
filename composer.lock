@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e17e4bc8f031a40be819ca7cb720c3d6",
+    "content-hash": "b6bfe74e93ed3ecbb303d40a5878eb43",
     "packages": [
         {
             "name": "brick/math",
@@ -3371,6 +3371,63 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.3"
             },
             "time": "2026-06-18T03:57:49+00:00"
+        },
+        {
+            "name": "spurs-cloud/accounts-laravel",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Delma60/spurs-accounts-laravel-sdk.git",
+                "reference": "119e8067bc2d91900667e2ef226804e2d0172a7e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Delma60/spurs-accounts-laravel-sdk/zipball/119e8067bc2d91900667e2ef226804e2d0172a7e",
+                "reference": "119e8067bc2d91900667e2ef226804e2d0172a7e",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/auth": "^11.0|^12.0",
+                "illuminate/http": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^9.0|^10.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "SpursCloud\\Accounts\\SpursServiceProvider"
+                    ],
+                    "aliases": {
+                        "Spurs": "SpursCloud\\Accounts\\Facades\\Spurs"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SpursCloud\\Accounts\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Spurs Accounts SDK for Laravel — shared-session SSO for first-party Spurs apps, and OAuth2/OIDC for third-party apps.",
+            "keywords": [
+                "authentication",
+                "laravel",
+                "oidc",
+                "spurs",
+                "sso"
+            ],
+            "support": {
+                "source": "https://github.com/Delma60/spurs-accounts-laravel-sdk/tree/master",
+                "issues": "https://github.com/Delma60/spurs-accounts-laravel-sdk/issues"
+            },
+            "time": "2026-07-21T16:52:36+00:00"
         },
         {
             "name": "symfony/clock",
@@ -8527,7 +8584,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "spurs-cloud/accounts-laravel": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

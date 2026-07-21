@@ -13,6 +13,7 @@
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "spurs-cloud/accounts-laravel": "dev-master",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
@@ -72,5 +73,11 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": {
+        "spurs-accounts": {
+            "type": "vcs",
+            "url": "https://github.com/Delma60/spurs-accounts-laravel-sdk"
+        }
+    }
 }
