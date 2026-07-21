@@ -1,54 +1,100 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
-import AppLogo from './app-logo';
+import { CreditCard, Globe, LayoutDashboard, LifeBuoy, Mail, Server, Shield } from 'lucide-react';
 
-const mainNavItems: NavItem[] = [
+// Define the main navigation items with nested sub-items
+const mainNavItems = [
     {
         title: 'Dashboard',
         url: '/dashboard',
-        icon: LayoutGrid,
-    },
-];
-
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        url: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
+        icon: LayoutDashboard,
+        isActive: true,
     },
     {
-        title: 'Documentation',
-        url: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
+        title: 'My Services',
+        url: '#',
+        icon: Server,
+        items: [
+            { title: 'Shared Hosting', url: route("services.shared-hosting")},
+            { title: 'Cloud VPS', url: '#' },
+            { title: 'Order New Service', url: route("services.order") },
+        ],
+    },
+    {
+        title: 'Domains',
+        url: '#',
+        icon: Globe,
+        items: [
+            { title: 'My Domains', url: route("domain.index") },
+            { title: 'Register a New Domain', url: '#' },
+            { title: 'Transfer Domains', url: '#' },
+            { title: 'DNS Management', url: '#' },
+        ],
+    },
+    {
+        title: 'Business Email',
+        url: '#',
+        icon: Mail,
+        items: [
+            { title: 'Manage Inboxes', url: '#' },
+            { title: 'Webmail Login', url: '#' },
+        ],
+    },
+    {
+        title: 'Billing',
+        url: '#',
+        icon: CreditCard,
+        items: [
+            { title: 'My Invoices', url: '#' },
+            { title: 'Payment Methods', url: '#' },
+            { title: 'Add Funds', url: '#' },
+        ],
+    },
+    {
+        title: 'Support',
+        url: '#',
+        icon: LifeBuoy,
+        items: [
+            { title: 'My Tickets', url: '#' },
+            { title: 'Open New Ticket', url: '#' },
+            { title: 'Knowledge Base', url: '#' },
+        ],
     },
 ];
 
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
+            {/* Sidebar Branding / Header */}
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
-                                <AppLogo />
+                            <Link href="/dashboard" className="flex items-center gap-3">
+                                <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                                    <Shield className="size-5" />
+                                </div>
+                                <div className="grid flex-1 text-left text-sm leading-tight">
+                                    <span className="truncate text-base font-bold">Spurs Cloud</span>
+                                    <span className="text-muted-foreground truncate text-xs">Client Area</span>
+                                </div>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
-                <NavMain items={mainNavItems} />
+            {/* Main Navigation Links */}
+            <SidebarContent className="mt-4 px-2">
+                <div className="flex-1">
+                    <NavMain items={mainNavItems} />
+                </div>
             </SidebarContent>
 
+            {/* User Profile Dropdown */}
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

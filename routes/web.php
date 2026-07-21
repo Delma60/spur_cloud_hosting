@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\SpursController;
 use App\Http\Controllers\DomainController;
+use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -22,6 +23,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('domains/register', [DomainController::class, 'register'])->name('domains.register');
     Route::get('domains/{domain}', [DomainController::class, 'show'])->name('domains.show');
     Route::get('domains/{domain}/return', [DomainController::class, 'paymentReturn'])->name('domains.return');
+
+    Route::get('/services/order', [ServiceController::class, 'create'])->name('services.order');
+    Route::get('/services/shared-hosting', [ServiceController::class, 'sharedHosting'])->name('services.shared-hosting');
+    Route::get('/services/{id}', [ServiceController::class, 'show'])->name('services.show');
 });
 
 require __DIR__.'/settings.php';
