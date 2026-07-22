@@ -14,7 +14,8 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "spurs-cloud/accounts-laravel": "dev-master",
-        "spurs-cloud/wallet-laravel": "@dev",
+        "spurs-cloud/pay-laravel": "dev-master",
+        "spurs-cloud/wallet-laravel": "dev-master",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
@@ -76,9 +77,13 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "repositories": {
+        "spurs-pay": {
+            "type": "vcs",
+            "url": "https://github.com/Delma60/spurs-pay-laravel-sdk"
+        },
         "spurs-wallet": {
-            "type": "path",
-            "url": "../products/sdks/wallet/laravel"
+            "type": "vcs",
+            "url": "https://github.com/Delma60/spurs-wallet-laravel-sdk"
         },
         "spurs-accounts": {
             "type": "vcs",

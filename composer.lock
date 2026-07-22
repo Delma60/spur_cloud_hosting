@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "23173a8ee1b343eff3f4a471c43d4c33",
+    "content-hash": "d1af4fdd4ce7e1a971d0ce0d813b0ecb",
     "packages": [
         {
             "name": "brick/math",
@@ -1414,16 +1414,16 @@
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v2.0.13",
+            "version": "v2.0.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "b566ee0dd251f3c4078bed003a7ce015f5ea6dce"
+                "reference": "dccd8bcb851bb03fcc005df650b708b57cc52661"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/b566ee0dd251f3c4078bed003a7ce015f5ea6dce",
-                "reference": "b566ee0dd251f3c4078bed003a7ce015f5ea6dce",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/dccd8bcb851bb03fcc005df650b708b57cc52661",
+                "reference": "dccd8bcb851bb03fcc005df650b708b57cc52661",
                 "shasum": ""
             },
             "require": {
@@ -1471,7 +1471,7 @@
                 "issues": "https://github.com/laravel/serializable-closure/issues",
                 "source": "https://github.com/laravel/serializable-closure"
             },
-            "time": "2026-04-16T14:03:50+00:00"
+            "time": "2026-07-21T16:49:22+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -3430,18 +3430,78 @@
             "time": "2026-07-21T16:52:36+00:00"
         },
         {
-            "name": "spurs-cloud/wallet-laravel",
+            "name": "spurs-cloud/pay-laravel",
             "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:Delma60/spurs-pay-laravel-sdk.git",
+                "reference": "1a48b7503a1c4afeb1c4c236b3741fd026dbcc6f"
+            },
             "dist": {
-                "type": "path",
-                "url": "../products/sdks/wallet/laravel",
-                "reference": "9c7f7df1bdcd23c2b2146e0217bb4ec6ea558d22"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Delma60/spurs-pay-laravel-sdk/zipball/1a48b7503a1c4afeb1c4c236b3741fd026dbcc6f",
+                "reference": "1a48b7503a1c4afeb1c4c236b3741fd026dbcc6f",
+                "shasum": ""
             },
             "require": {
                 "illuminate/http": "^11.0|^12.0",
                 "illuminate/support": "^11.0|^12.0",
                 "php": "^8.2"
             },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "SpursCloud\\Pay\\SpursPayServiceProvider"
+                    ],
+                    "aliases": {
+                        "SpursPay": "SpursCloud\\Pay\\Facades\\SpursPay"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SpursCloud\\Pay\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Spurs Pay SDK for Laravel — create payments, verify webhooks, issue refunds and send payouts.",
+            "keywords": [
+                "checkout",
+                "laravel",
+                "payments",
+                "payouts",
+                "spurs"
+            ],
+            "support": {
+                "source": "https://github.com/Delma60/spurs-pay-laravel-sdk/tree/master",
+                "issues": "https://github.com/Delma60/spurs-pay-laravel-sdk/issues"
+            },
+            "time": "2026-07-21T18:31:55+00:00"
+        },
+        {
+            "name": "spurs-cloud/wallet-laravel",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:Delma60/spurs-wallet-laravel-sdk.git",
+                "reference": "db128a46de93cec0c238f7c716b4d08f6b3fc818"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Delma60/spurs-wallet-laravel-sdk/zipball/db128a46de93cec0c238f7c716b4d08f6b3fc818",
+                "reference": "db128a46de93cec0c238f7c716b4d08f6b3fc818",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/http": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -3469,9 +3529,11 @@
                 "spurs",
                 "wallet"
             ],
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Delma60/spurs-wallet-laravel-sdk/tree/master",
+                "issues": "https://github.com/Delma60/spurs-wallet-laravel-sdk/issues"
+            },
+            "time": "2026-07-21T18:32:45+00:00"
         },
         {
             "name": "symfony/clock",
@@ -8630,6 +8692,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "spurs-cloud/accounts-laravel": 20,
+        "spurs-cloud/pay-laravel": 20,
         "spurs-cloud/wallet-laravel": 20
     },
     "prefer-stable": true,

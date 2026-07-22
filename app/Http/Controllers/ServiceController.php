@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HostingService;
-use App\Support\PayClient;
+use SpursCloud\Pay\SpursPayInternal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -52,7 +52,7 @@ class ServiceController extends Controller
             'currency' => 'NGN',
         ]);
 
-        $payment = PayClient::createPayment([
+        $payment = app(SpursPayInternal::class)->createPayment([
             'merchant' => $user->spurs_sub,
             'businessName' => $user->name,
             'amount' => $plan['price'],
@@ -71,7 +71,7 @@ class ServiceController extends Controller
     {
         abort_unless($service->user_id === $request->user()->id, 403);
 
-        $payment = $service->pay_reference ? PayClient::getPayment($service->pay_reference) : null;
+        $payment = $service->pay_reference ? app(SpursPayInternal::class)->getPayment($service->pay_reference) : null;
         if (($payment['status'] ?? null) === 'successful' && $service->status !== 'active') {
             $service->update(['status' => 'active', 'renews_at' => now()->addMonth()]);
         }

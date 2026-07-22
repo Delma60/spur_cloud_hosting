@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Domain;
 use App\Support\DomainRegistry;
-use App\Support\PayClient;
+use SpursCloud\Pay\SpursPayInternal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -60,7 +60,7 @@ class DomainController extends Controller
             'price' => $price, 'currency' => 'NGN', 'years' => 1,
         ]);
 
-        $payment = PayClient::createPayment([
+        $payment = app(SpursPayInternal::class)->createPayment([
             'merchant' => $user->spurs_sub,
             'businessName' => $user->name,
             'amount' => $price,
@@ -114,7 +114,7 @@ class DomainController extends Controller
             'years' => $years,
         ]);
 
-        $payment = PayClient::createPayment([
+        $payment = app(SpursPayInternal::class)->createPayment([
             'merchant' => $user->spurs_sub,
             'businessName' => $user->name,
             'amount' => $price,
@@ -134,7 +134,7 @@ class DomainController extends Controller
     {
         abort_unless($domain->user_id === $request->user()->id, 403);
 
-        $payment = $domain->pay_reference ? PayClient::getPayment($domain->pay_reference) : null;
+        $payment = $domain->pay_reference ? app(SpursPayInternal::class)->getPayment($domain->pay_reference) : null;
 
         if (($payment['status'] ?? null) === 'successful' && $domain->status !== 'active') {
             $domain->update([
